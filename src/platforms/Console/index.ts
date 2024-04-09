@@ -2,6 +2,7 @@ export default class Console implements Platform {
     name = "TERM";
     
     private spamNumbers = false;
+    private spamNumbersInterval: NodeJS.Timeout | undefined
 
     private callbacks: ReceiveMessageCallback[] = [];
 
@@ -13,7 +14,10 @@ export default class Console implements Platform {
         this.callbacks.push(callback);
     }
 
-    stop() {}
+    stop() {
+        if (this.spamNumbersInterval)
+            clearInterval(this.spamNumbersInterval);
+    }
 
     sendMessageToCallbacks(message: Message) {
         for (let callback of this.callbacks) callback(message);
@@ -29,7 +33,7 @@ export default class Console implements Platform {
 
     constructor() {
         if (this.spamNumbers)
-            setInterval(() => {
+            this.spamNumbersInterval = setInterval(() => {
                 this.callbacks.forEach(callback => callback({
                     platformName: this.name,
                     username: undefined,

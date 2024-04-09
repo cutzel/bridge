@@ -49,3 +49,9 @@ for (const platform of platforms) {
             .forEach(platform => platform.send(message));
     });
 }
+
+// graceful stop
+const stop = () => platforms.forEach(p => p.stop());
+
+process.once('SIGINT', stop);
+process.once('SIGTERM', stop);

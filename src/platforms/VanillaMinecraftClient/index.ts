@@ -45,7 +45,7 @@ export default class VanillaMinecraftClient implements Platform {
     }
 
     stop() {
-        this.client.quit("Stopped");
+        this.client.end("Stopped");
         console.log("Minecraft stopped");
     }
 
@@ -75,6 +75,8 @@ export default class VanillaMinecraftClient implements Platform {
 
         // reconnect if disconnected
         this.client.on('end', (reason) => {
+            if (reason == "Stopped") return;
+
             console.warn(`Minecraft client ended: ${reason}`)
             if (this.reconnectInterval === undefined)
                 this.reconnectInterval = setInterval(() => {

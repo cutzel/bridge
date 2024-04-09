@@ -25,10 +25,6 @@ export default class TelegramBot implements Platform {
         console.log("Telegram stopped");
     }
 
-    sendMessageToCallbacks(message: Message) {
-        for (let callback of this.callbacks) callback(message);
-    }
-
     constructor(token: string, chatId: string) {
         this.chatId = chatId;
 
@@ -39,7 +35,7 @@ export default class TelegramBot implements Platform {
                 return await this.bot.telegram.sendMessage(this.chatId, "Wrong chat");
                         
             const last_name = ctx.message.from.last_name;
-            this.sendMessageToCallbacks({
+            for (let callback of this.callbacks) callback({
                 platformName: this.name,
                 username: ctx.message.from.first_name + (last_name ? ` ${last_name}` : ""),
                 text: ctx.message.text,

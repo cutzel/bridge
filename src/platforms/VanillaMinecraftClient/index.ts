@@ -1,5 +1,20 @@
 import { Bot, BotOptions, createBot } from "mineflayer";
 
+// A minecraft check will kick the bot if illegal characters are sent
+function safeText(text: String) {
+    return text.split('')
+    .filter(char => char.charCodeAt(0) !== 167 && char.charCodeAt(0) >= 32 && char.charCodeAt(0) !== 127)
+    .join('');
+}
+
+function splitTextIntoChunks(text: string, chunkSize: number) {
+    const chunks = [];
+    for (let i = 0; i < text.length; i += chunkSize) {
+        chunks.push(text.slice(i, i + chunkSize));
+    }
+    return chunks;
+}
+
 export default class VanillaMinecraftClient implements Platform {
     name = "MC";
 
@@ -10,25 +25,10 @@ export default class VanillaMinecraftClient implements Platform {
     
     private callbacks: ReceiveMessageCallback[] = [];
 
-    // A minecraft check will kick the bot if illegal characters are sent
-    safeText(text: String) {
-        return text.split('')
-        .filter(char => char.charCodeAt(0) !== 167 && char.charCodeAt(0) >= 32 && char.charCodeAt(0) !== 127)
-        .join('');
-    }
-
-    splitTextIntoChunks(text: string, chunkSize: number) {
-        const chunks = [];
-        for (let i = 0; i < text.length; i += chunkSize) {
-            chunks.push(text.slice(i, i + chunkSize));
-        }
-        return chunks;
-    }
-
     send(message: Message) {
-        const msg = `[${message.platformName}] ${message.username !== undefined && `${this.safeText(message.username)}: ` || ""}${this.safeText(message.text)}`;
+        const msg = `[${message.platformName}] ${message.username !== undefined && `${safeText(message.username)}: ` || ""}${safeText(message.text)}`;
 
-        const msgArray = this.splitTextIntoChunks(msg, this.client.supportFeature('lessCharsInChat') ? 100 : 256)
+        const msgArray = splitTextIntoChunks(msg, this.client.supportFeature('lessCharsInChat') ? 100 : 256)
         const filteredMsgArray = msgArray.map(messagePart => {
             if (messagePart[0] == "/")
                 return "∕" + messagePart.slice(1)
@@ -49,10 +49,6 @@ export default class VanillaMinecraftClient implements Platform {
         console.log("Minecraft stopped");
     }
 
-    sendMessageToCallbacks(message: Message) {
-        for (let callback of this.callbacks) callback(message);
-    }
-
     registerEvents() {        
         this.client.on('spawn', () => {
             if (this.reconnectInterval) {
@@ -66,7 +62,7 @@ export default class VanillaMinecraftClient implements Platform {
 
         this.client.on('chat', (name, message) => {
             if (name != this.client._client.username)
-                this.sendMessageToCallbacks({
+            for (let callback of this.callbacks) callback({
                     platformName: this.name,
                     username: name,
                     text: message,

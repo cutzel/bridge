@@ -13,7 +13,7 @@ export default class TelegramBot implements Platform {
         await this.bot.telegram.sendMessage(
             this.chatId,
             `[${message.platformName}] ${message.username !== undefined && `${message.username}: ` || ""}${message.text}`
-            )
+            );
     }
 
     registerReceiveCallback(callback: ReceiveMessageCallback) {
@@ -40,8 +40,8 @@ export default class TelegramBot implements Platform {
                 username: ctx.message.from.first_name + (last_name ? ` ${last_name}` : ""),
                 text: ctx.message.text,
             })
-          })
+        });
 
-        this.bot.launch(() => console.log("Telegram connected"))
+        this.bot.launch(() => console.log("Telegram connected"));
     }
 }

@@ -1,3 +1,11 @@
+function generateRandomNumber(length: number) {
+    let randomNumber = '';
+    for (let i = 0; i < length; i++) {
+      randomNumber += Math.floor(Math.random() * 10);
+    }
+    return randomNumber;
+}
+
 export default class Console implements Platform {
     name = "TERM";
     
@@ -19,26 +27,14 @@ export default class Console implements Platform {
             clearInterval(this.spamNumbersInterval);
     }
 
-    sendMessageToCallbacks(message: Message) {
-        for (let callback of this.callbacks) callback(message);
-    }
-
-    generateRandomNumber(length: number) {
-        let randomNumber = '';
-        for (let i = 0; i < length; i++) {
-          randomNumber += Math.floor(Math.random() * 10);
-        }
-        return randomNumber;
-    }
-
     constructor() {
         if (this.spamNumbers)
             this.spamNumbersInterval = setInterval(() => {
-                this.callbacks.forEach(callback => callback({
+                for (let callback of this.callbacks) callback({
                     platformName: this.name,
                     username: undefined,
-                    text: this.generateRandomNumber(10),
-                }));
+                    text: generateRandomNumber(10),
+                });
             }, 5 * 1000);
     }
 }

@@ -58,15 +58,15 @@ export default class VanillaMinecraftClient implements Platform {
             } else {
                 console.log("Minecraft connected");
             }
-        })
+        });
 
         this.client.on('chat', (name, message) => {
             if (name != this.client._client.username)
-            for (let callback of this.callbacks) callback({
-                    platformName: this.name,
-                    username: name,
-                    text: message,
-                })
+                for (let callback of this.callbacks) callback({
+                        platformName: this.name,
+                        username: name,
+                        text: message,
+                    });
         });
 
         // reconnect if disconnected
@@ -79,7 +79,7 @@ export default class VanillaMinecraftClient implements Platform {
                     this.client = createBot(this.botOptions);
                     this.registerEvents()
                 }, 60 * 1000); // every minute
-        })
+        });
     }
 
     constructor(hostIp: string, hostPort: number | undefined, username: string, password: string | undefined, auth: 'mojang' | 'microsoft' | 'offline' | undefined) {
@@ -92,6 +92,6 @@ export default class VanillaMinecraftClient implements Platform {
         };
 
         this.client = createBot(this.botOptions);
-        this.registerEvents()
+        this.registerEvents();
     }
 }

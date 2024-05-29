@@ -1,16 +1,15 @@
 import { Telegraf } from "telegraf";
 import { message } from "telegraf/filters"
 
-export default class TelegramBot implements Platform {
+export default class TelegramBot extends Telegraf implements Platform {
     name = "TG";
 
     private callbacks: ReceiveMessageCallback[] = [];
 
-    private bot: Telegraf;
     private chatId: string;
 
     async send(message: Message) {
-        await this.bot.telegram.sendMessage(
+        await this.telegram.sendMessage(
             this.chatId,
             `[${message.platformName}] ${message.username !== undefined && `${message.username}: ` || ""}${message.text}`
             );
@@ -21,18 +20,18 @@ export default class TelegramBot implements Platform {
     }
 
     stop() {
-        this.bot.stop('Stopped');
+        super.stop('Stopped');
         console.log("Telegram stopped");
     }
 
     constructor(token: string, chatId: string) {
+        super(token);
+        
         this.chatId = chatId;
-
-        this.bot = new Telegraf(token);
-
-        this.bot.on(message('text'), async (ctx) => {
+        
+        this.on(message('text'), async (ctx) => {
             if (ctx.message.chat.id.toString() != this.chatId)
-                return await this.bot.telegram.sendMessage(this.chatId, "Wrong chat");
+                return await this.telegram.sendMessage(this.chatId, "Wrong chat");
                         
             const last_name = ctx.message.from.last_name;
             for (let callback of this.callbacks) callback({
@@ -42,6 +41,6 @@ export default class TelegramBot implements Platform {
             })
         });
 
-        this.bot.launch(() => console.log("Telegram connected"));
+        this.launch(() => console.log("Telegram connected"));
     }
 }
